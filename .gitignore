@@ -1,0 +1,5 @@
+build
+myenv
+app/__pycache__
+app/.vscode
+.vscode
