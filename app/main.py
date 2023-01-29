@@ -1,4 +1,4 @@
-from file_details import FileDetails
+from app.file_details import FileDetails
 from datetime import datetime
 from time import strftime
 import tkinter as tk

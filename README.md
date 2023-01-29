@@ -8,3 +8,7 @@ So for instance, if she had three pictures in a file, two of them taken on Septe
 It only works on Windows and only on jpeg files.
 
 To use it you can just use the .exe found in the `dist` folder.
+
+To generate executable:
+Run the following command: pyinstaller --onefile --name Lubility app/main.py
+This will generate a single executable file in a dist directory within the current directory.
