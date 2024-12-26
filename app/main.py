@@ -40,7 +40,7 @@ def get_sorted_files(directory: str) -> Tuple[List[FileDetails], List[str]]:
     fuckups: List[str] = []
 
     for filename in os.listdir(directory):
-        if not filename.endswith('.jpg'):
+        if not filename.endswith(('.jpg', '.jpeg')):
             continue
 
         filepath = os.path.join(directory, filename)
