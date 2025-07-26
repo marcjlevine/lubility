@@ -6,6 +6,10 @@ from tkinter import filedialog, messagebox
 import os
 from typing import List, Tuple
 import exifread
+from PIL import Image
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 window = tk.Tk()
 window.title('Lubility - The Luba Utility')
@@ -40,18 +44,36 @@ def get_sorted_files(directory: str) -> Tuple[List[FileDetails], List[str]]:
     fuckups: List[str] = []
 
     for filename in os.listdir(directory):
-        if not filename.lower().endswith(('.jpg', '.jpeg')):
+        if not filename.lower().endswith(('.jpg', '.jpeg', '.heic', '.heif')):
             continue
 
         filepath = os.path.join(directory, filename)
-        with open(filepath, 'rb') as f:
-            tags = exifread.process_file(f)
-            datetime_tag = tags.get(EXIF_DATE_TAG) or tags.get(BACKUP_DATE_TAG)
-            if not datetime_tag:
+        
+        # Handle HEIC/HEIF files differently from JPEG
+        if filename.lower().endswith(('.heic', '.heif')):
+            try:
+                with Image.open(filepath) as img:
+                    exif_dict = img.getexif()
+                    # EXIF DateTime tags: 36867 = DateTimeOriginal, 306 = DateTime
+                    datetime_str = exif_dict.get(36867) or exif_dict.get(306)
+                    if not datetime_str:
+                        fuckups.append(filename)
+                        continue
+                    datetime_tag_value = datetime_str
+            except Exception:
                 fuckups.append(filename)
-                continue;
+                continue
+        else:
+            # Handle JPEG files with exifread
+            with open(filepath, 'rb') as f:
+                tags = exifread.process_file(f)
+                datetime_tag = tags.get(EXIF_DATE_TAG) or tags.get(BACKUP_DATE_TAG)
+                if not datetime_tag:
+                    fuckups.append(filename)
+                    continue
+                datetime_tag_value = datetime_tag.values
 
-            pic_timestamp = datetime.strptime(datetime_tag.values, TAG_DATE_FORMAT)
+            pic_timestamp = datetime.strptime(datetime_tag_value, TAG_DATE_FORMAT)
             new_filename_datepart = pic_timestamp.strftime(TARGET_DATE_FORMAT)
             next_file = FileDetails(filename, pic_timestamp, new_filename_datepart)
 

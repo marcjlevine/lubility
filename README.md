@@ -5,7 +5,7 @@ So for instance, if she had three pictures in a file, two of them taken on Septe
 2022-09-01 (2)   <-- _the one taken at 10:00 am_
 2022-09-02 (1)
 
-It only works on Windows and only on jpeg files.
+It only works on Windows and only on jpeg and HEIC files.
 
 To use it you can just use the .exe found in the `dist` folder.
 
