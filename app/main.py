@@ -73,28 +73,28 @@ def get_sorted_files(directory: str) -> Tuple[List[FileDetails], List[str]]:
                     continue
                 datetime_tag_value = datetime_tag.values
 
-            pic_timestamp = datetime.strptime(datetime_tag_value, TAG_DATE_FORMAT)
-            new_filename_datepart = pic_timestamp.strftime(TARGET_DATE_FORMAT)
-            next_file = FileDetails(filename, pic_timestamp, new_filename_datepart)
+        pic_timestamp = datetime.strptime(datetime_tag_value, TAG_DATE_FORMAT)
+        new_filename_datepart = pic_timestamp.strftime(TARGET_DATE_FORMAT)
+        next_file = FileDetails(filename, pic_timestamp, new_filename_datepart)
 
-            i = 0
-            file_number = 1
-            file_inserted = False
+        i = 0
+        file_number = 1
+        file_inserted = False
 
-            while i <= len(files) and not file_inserted:
-                # insert at end or beginning
-                if i == len(files) or pic_timestamp < files[i].date_taken:
-                    insert_file(files, new_filename_datepart, next_file, i, file_number)
-                    file_inserted = True
-                    continue
+        while i <= len(files) and not file_inserted:
+            # insert at end or beginning
+            if i == len(files) or pic_timestamp < files[i].date_taken:
+                insert_file(files, new_filename_datepart, next_file, i, file_number)
+                file_inserted = True
+                continue
 
-                if new_filename_datepart == files[i].formatted_date_taken: 
-                    file_number += 1
+            if new_filename_datepart == files[i].formatted_date_taken: 
+                file_number += 1
 
-                i += 1
-                if pic_timestamp > files[i-1].date_taken and (i == len(files) or pic_timestamp < files[i].date_taken): 
-                    insert_file(files, new_filename_datepart, next_file, i, file_number)
-                    file_inserted = True
+            i += 1
+            if pic_timestamp > files[i-1].date_taken and (i == len(files) or pic_timestamp < files[i].date_taken): 
+                insert_file(files, new_filename_datepart, next_file, i, file_number)
+                file_inserted = True
 
     return (files, fuckups)
 
