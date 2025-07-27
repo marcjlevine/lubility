@@ -1,4 +1,4 @@
-from app.file_details import FileDetails
+from file_details import FileDetails
 from datetime import datetime
 from time import strftime
 import tkinter as tk
@@ -39,6 +39,22 @@ def show_success(fuckups: List[str]):
     messagebox.showinfo(title="Success, yay!", 
         message=f"It worked!  Wow, your husband must be awesome.  To thank him please go give him a giant kiss. {fuckup_msg}")
 
+def convert_heic_to_jpg(filepath: str) -> str:
+    """Convert HEIC file to JPG and return the new filepath"""
+    base_name = os.path.splitext(filepath)[0]
+    jpg_filepath = base_name + '.jpg'
+    
+    with Image.open(filepath) as img:
+        # Convert to RGB if necessary (HEIC might be in other color modes)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        img.save(jpg_filepath, 'JPEG', quality=95)
+    
+    # Remove the original HEIC file
+    os.remove(filepath)
+    
+    return jpg_filepath
+
 def get_sorted_files(directory: str) -> Tuple[List[FileDetails], List[str]]:
     files: List[FileDetails] = []
     fuckups: List[str] = []
@@ -48,20 +64,27 @@ def get_sorted_files(directory: str) -> Tuple[List[FileDetails], List[str]]:
             continue
 
         filepath = os.path.join(directory, filename)
+        original_filename = filename
         
-        # Handle HEIC/HEIF files differently from JPEG
+        # Convert HEIC/HEIF files to JPG
         if filename.lower().endswith(('.heic', '.heif')):
             try:
+                # First extract EXIF data before conversion
                 with Image.open(filepath) as img:
                     exif_dict = img.getexif()
                     # EXIF DateTime tags: 36867 = DateTimeOriginal, 306 = DateTime
                     datetime_str = exif_dict.get(36867) or exif_dict.get(306)
                     if not datetime_str:
-                        fuckups.append(filename)
+                        fuckups.append(original_filename)
                         continue
                     datetime_tag_value = datetime_str
+                
+                # Convert to JPG
+                filepath = convert_heic_to_jpg(filepath)
+                filename = os.path.basename(filepath)
+                
             except Exception:
-                fuckups.append(filename)
+                fuckups.append(original_filename)
                 continue
         else:
             # Handle JPEG files with exifread
